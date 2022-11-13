@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:timer_bloc/ticker.dart';
 import 'package:timer_bloc/timer/bloc/timer_bloc.dart';
 
 class TimerPage extends StatelessWidget {
@@ -8,7 +9,7 @@ class TimerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-        create: (_) => TimerBloc(ticker: Ticker()),
+      create: (_) => TimerBloc(ticker: Ticker()),
       child: const TimerView(),
     );
   }
@@ -29,7 +30,7 @@ class TimerView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: const [
               Padding(
-                  padding: EdgeInsets.symmetric(vertical: 100.0),
+                padding: EdgeInsets.symmetric(vertical: 100.0),
                 child: Center(child: TimerText(),),
               ),
               Actions()
@@ -63,47 +64,68 @@ class Actions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<TimerBloc, TimerState>(
-      buildWhen: (prev, state) => prev.runtimeType != state.runtimeType,
+        buildWhen: (prev, state) => prev.runtimeType != state.runtimeType,
         builder: (context, state) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            if (state is TimerInitial) ...[
-              FloatingActionButton(
-                child: Icon(Icons.play_arrow),
-                  onPressed:() => context
-              .read<TimerBloc>()
-              .add(TimerStarted(duration: state.duration))
-              )
-            ]
-            if (state is TimerRunInProgress) ...[
-              FloatingActionButton(
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              if (state is TimerInitial) ...[
+                FloatingActionButton(
+                    child: Icon(Icons.play_arrow),
+                    onPressed:() => context
+                        .read<TimerBloc>()
+                        .add(TimerStarted(duration: state.duration))
+                )
+              ],
+              if (state is TimerRunInProgress) ...[
+                FloatingActionButton(
                   child: Icon(Icons.pause),
                   onPressed: () => context.read<TimerBloc>().add(TimerPaused()),
-              ),
-              FloatingActionButton(
-                  child: Icon(Icons.replay),
-                  onPressed: () => context.read<TimerBloc>().add(TimerReset())
-              ),
-            ],
-            if (state is TimerRunPause) ...[
-              FloatingActionButton(
+                ),
+                FloatingActionButton(
+                    child: Icon(Icons.replay),
+                    onPressed: () => context.read<TimerBloc>().add(TimerReset())
+                ),
+              ],
+              if (state is TimerRunPause) ...[
+                FloatingActionButton(
                   child: Icon(Icons.play_arrow),
                   onPressed: () => context.read<TimerBloc>().add(TimerResumed()),
-              ),
-              FloatingActionButton(
-                child: Icon(Icons.replay),
-                  onPressed: () => context.read<TimerBloc>().add(TimerReset()),
-              ),
-              if (state is TimerRunComplete) ...[
+                ),
                 FloatingActionButton(
                   child: Icon(Icons.replay),
-                    onPressed: () => context.read<TimerBloc>().add(TimerReset()))
+                  onPressed: () => context.read<TimerBloc>().add(TimerReset()),
+                ),
+                if (state is TimerRunComplete) ...[
+                  FloatingActionButton(
+                      child: Icon(Icons.replay),
+                      onPressed: () => context.read<TimerBloc>().add(TimerReset()))
+                ]
               ]
-            ]
-          ],
-        )
+            ],
+          );
         });
   }
 }
+
+class Background extends StatelessWidget {
+  const Background({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.blue.shade50,
+                Colors.blue.shade500
+              ]
+          )
+      ),
+    );
+  }
+}
+
 
